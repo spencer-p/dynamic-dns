@@ -1,0 +1,42 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: dynamic-dns
+spec:
+  schedule: "0 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: dynamic-dns
+            image: ko://github.com/spencer-p/dynamic-dns
+            imagePullPolicy: IfNotPresent
+            env:
+              - name: EMAIL
+                valueFrom:
+                  secretKeyRef:
+                    name: dynamic-dns-config
+                    key: email
+              - name: USERNAME
+                valueFrom:
+                  secretKeyRef:
+                    name: dynamic-dns-config
+                    key: username
+              - name: PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: dynamic-dns-config
+                    key: password
+              - name: REQUEST_URL
+                valueFrom:
+                  secretKeyRef:
+                    name: dynamic-dns-config
+                    key: requestURL
+              - name: HOSTNAME
+                valueFrom:
+                  secretKeyRef:
+                    name: dynamic-dns-config
+                    key: hostname
+          restartPolicy: Never
+
