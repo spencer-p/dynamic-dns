@@ -28,11 +28,17 @@ type Config struct {
 func main() {
 	var env Config
 	envconfig.MustProcess("", &env)
+
 	ip, err := getIP()
 	if err != nil {
 		log.Fatalf("failed to get IP: %v", err)
 	}
-	// TODO Look up IP and exit early.
+
+	if alreadySet(env.Hostname, ip) {
+		log.Println("Hostname is already up to date.")
+		return
+	}
+
 	err = setIP(env, ip)
 	if err != nil {
 		log.Fatalf("failed to update IP: %v", err)
@@ -105,4 +111,18 @@ func setIP(env Config, ip net.IP) error {
 	}
 
 	return nil
+}
+
+func alreadySet(hostname string, ip net.IP) bool {
+	all, err := net.LookupIP(hostname)
+	if err != nil {
+		log.Println("failed to look up %s: %v", hostname, err)
+		return false
+	}
+	for i := range all {
+		if ip.Equal(all[i]) {
+			return true
+		}
+	}
+	return false
 }

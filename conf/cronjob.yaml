@@ -3,6 +3,8 @@ kind: CronJob
 metadata:
   name: dynamic-dns
 spec:
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
   schedule: "0 * * * *"
   jobTemplate:
     spec:
