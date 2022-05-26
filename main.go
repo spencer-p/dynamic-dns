@@ -77,7 +77,7 @@ func setIP(env Config, ip net.IP) error {
 
 	const agentFmt = "github.com/spencer-p/dynamic-dns %s"
 	header := make(http.Header)
-	header.Add("Agent", fmt.Sprintf(agentFmt, env.OwnerEmail))
+	header.Add("User-Agent", fmt.Sprintf(agentFmt, env.OwnerEmail))
 	request := &http.Request{
 		Method: "POST",
 		Header: header,
@@ -97,7 +97,7 @@ func setIP(env Config, ip net.IP) error {
 		return err
 	}
 	if resp.StatusCode != http.StatusOK {
-		log.Println("response is %q", buf.String())
+		log.Printf("response is %q\n", buf.String())
 		return fmt.Errorf("got status %s", resp.Status)
 	}
 
@@ -116,9 +116,10 @@ func setIP(env Config, ip net.IP) error {
 func alreadySet(hostname string, ip net.IP) bool {
 	all, err := net.LookupIP(hostname)
 	if err != nil {
-		log.Println("failed to look up %s: %v", hostname, err)
+		log.Printf("failed to look up %s: %v\n", hostname, err)
 		return false
 	}
+	log.Printf("Checking if %s is in %v", ip, all)
 	for i := range all {
 		if ip.Equal(all[i]) {
 			return true
